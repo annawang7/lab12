@@ -330,7 +330,7 @@ module MakeImpQueue (A : sig
         match !mlst with
         | Nil -> " ||"
         | Cons (hd, tl) -> (A.to_string hd) ^ " -> " ^ (to_string' tl) in
-      to_string' q ;;
+      to_string' q.front ;;
   end ;;
 
 (* To build an imperative queue, we apply the functor to an
