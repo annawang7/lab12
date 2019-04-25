@@ -29,8 +29,7 @@ might want to add a "rec", or use a different argument list, or no
 argument list at all but binding to an anonymous function instead.)
 .....................................................................*)
 
-let inc _ =
-  failwith "inc not implemented" ;;
+let inc n = n := !n+1 ;;
 
 (*.....................................................................
 Exercise 3: Write a function named remember that returns the last string
@@ -50,8 +49,11 @@ As usual, you shouldn't feel beholden to how the definition is
 introduced in the skeleton code below.
 .....................................................................*)
 
-let remember _ =
-  failwith "remember not implemented" ;;
+let remember =
+  let str = ref "" in
+  fun x -> let last = !str in
+           str := x; 
+           last ;;
 
 (*====================================================================
 Part 2: Gensym
@@ -95,8 +97,11 @@ shouldn't feel beholden to how the definition is introduced in the
 skeleton code below. (We'll stop mentioning this now.)
 .....................................................................*)
 
-let gensym (s : string) : string =
-  failwith "gensym not implemented" ;;
+let gensym =
+  let num = ref 0 in
+  fun s -> let s2 = s ^ (string_of_int !num) in
+           inc num;
+           s2 ;;
 
 (*====================================================================
 Part 3: Appending mutable lists
@@ -125,8 +130,10 @@ a regular list to a mutable list, with behavior like this:
       Cons (1, {contents = Cons (2, {contents = Cons (3, {contents = Nil})})})
 ....................................................................*)
 
-let mlist_of_list (lst : 'a list) : 'a mlist =
-  failwith "mlist_of_list not implemented" ;;
+let rec mlist_of_list (lst : 'a list) : 'a mlist =
+  match lst with
+  | [] -> Nil
+  | hd :: tl -> Cons (hd, ref (mlist_of_list tl)) ;;
 
 (*.....................................................................
 Exercise 6: Define a function length to compute the length of an
@@ -139,8 +146,10 @@ in the book. (Don't worry about cycles. Yet.)
     - : int = 4
 .....................................................................*)
 
-let length (m : 'a mlist) : int =
-  failwith "length not implemented" ;;
+let rec length (m : 'a mlist) : int =
+  match m with
+  | Nil -> 0
+  | Cons (_, tl) -> 1 + length !tl ;;
 
 (*.....................................................................
 Exercise 7: What is the time complexity of the length function in
@@ -216,8 +225,10 @@ Examples of use:
               {contents = Cons (5, {contents = Cons (6, {contents = Nil})})})})})})
 .....................................................................*)
 
-let mappend _ =
-  failwith "mappend not implemented" ;;
+let rec mappend mlst1 mlst2 =
+  match mlst1 with
+  | Nil -> ();
+  | Cons (hd, tl) -> if !tl = Nil then tl := mlst2 else mappend !tl mlst2;;
 
 (* What happens when you evaluate the following expressions
    sequentially in order?
@@ -315,7 +326,11 @@ module MakeImpQueue (A : sig
          Some h
       | Nil -> None
     let to_string q =
-      failwith "to_string not implemented"
+      let rec to_string' mlst = 
+        match !mlst with
+        | Nil -> " ||"
+        | Cons (hd, tl) -> (A.to_string hd) ^ " -> " ^ (to_string' tl) in
+      to_string' q ;;
   end ;;
 
 (* To build an imperative queue, we apply the functor to an
