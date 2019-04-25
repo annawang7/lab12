@@ -328,7 +328,7 @@ module MakeImpQueue (A : sig
     let to_string q =
       let rec to_string' mlst = 
         match !mlst with
-        | Nil -> " ||"
+        | Nil -> "||"
         | Cons (hd, tl) -> (A.to_string hd) ^ " -> " ^ (to_string' tl) in
       to_string' q.front ;;
   end ;;
